@@ -6,7 +6,6 @@ var Handlebars = require('handlebars');
 var template = require('../../templates/postlist.hbs');
 
 var PostList = Backbone.View.extend({
-  tagName: "ul",
   id: "posts-list",
   template: template,
 

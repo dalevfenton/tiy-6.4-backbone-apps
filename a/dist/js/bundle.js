@@ -37,7 +37,8 @@ var Post = Backbone.Model.extend({
 
 var PostCollection = Backbone.Collection.extend({
   model: Post,
-  url: 'http://tiny-lasagna-server.herokuapp.com/collections/daleposts'
+  url: 'http://tiny-lasagna-server.herokuapp.com/collections/daleposts',
+  comparator: '_id'
 });
 
 module.exports = {
@@ -93,7 +94,6 @@ var Handlebars = require('handlebars');
 var template = require('../../templates/postlist.hbs');
 
 var PostList = Backbone.View.extend({
-  tagName: "ul",
   id: "posts-list",
   template: template,
 
@@ -124,14 +124,19 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 },{"handlebars/runtime":50}],6:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "  <li>"
-    + container.escapeExpression(container.lambda((depth0 != null ? depth0.post_title : depth0), depth0))
+    var alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "  <li><b>"
+    + alias2(alias1((depth0 != null ? depth0.post_title : depth0), depth0))
+    + "</b> - "
+    + alias2(alias1((depth0 != null ? depth0.post_post : depth0), depth0))
     + "</li>\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1;
 
-  return "<!DOCTYPE html>\n"
-    + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "");
+  return "<!DOCTYPE html>\n<h2>Your Blog Posts</h2>\n<ul>\n"
+    + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "</ul>\n";
 },"useData":true});
 },{"handlebars/runtime":50}],7:[function(require,module,exports){
 (function (process,__filename){
