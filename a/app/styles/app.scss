@@ -1,0 +1,29 @@
+
+// Bootstrap Variables
+$icon-font-path: '../../node_modules/bootstrap-sass/assets/fonts/bootstrap/';
+
+// Import Bootstrap
+@import '../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap';
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+}
+.container{
+  max-width: 900px;
+  margin: 25px auto 0 auto;
+}
+label, input, textarea, button{
+  width: 100%;
+  margin-bottom: 10px;
+  height: 25px;
+}
+textarea{
+  height: 200px;
+}
