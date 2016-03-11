@@ -1,8 +1,12 @@
 var $ = require('jquery');
 var _ = require('underscore');
-var Handlebars = require('handlebars');
 var Backbone = require('backbone');
-//to include an external handlebars template named header.handlebars
-//just do a var header = require("./header.handlebars") assuming it is in
-//the scripts folder
-console.log("Hello World!");
+
+
+var models = require('./models/models');
+
+var URLForm = require('./views/urlform');
+var bookmarks = new models.BookmarkCollection();
+var form = new URLForm({ collection: bookmarks });
+
+$('#new-url-form').html( form.render().el );
