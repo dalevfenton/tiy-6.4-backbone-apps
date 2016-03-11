@@ -7,13 +7,15 @@ var SidebarView = require('./views/sidebar');
 
 var posts = new models.PostCollection();
 var sidebar = new SidebarView({ collection: posts });
+$('#sidebar').html( sidebar.render().el );
+
 $(function(){
   posts.fetch().done(function(){
-    $('#sidebar').html( sidebar.render().el );
+
   });
 });
 
-},{"./models/models":2,"./views/sidebar":3,"jquery":49}],2:[function(require,module,exports){
+},{"./models/models":2,"./views/sidebar":4,"jquery":51}],2:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -31,45 +33,68 @@ module.exports = {
   PostCollection: PostCollection
 };
 
-},{"backbone":6}],3:[function(require,module,exports){
+},{"backbone":8}],3:[function(require,module,exports){
+"use strict";
+var Backbone = require('backbone');
+
+var template = require('../../templates/postlistitem.hbs');
+
+var PostListItemView = Backbone.View.extend({
+    template: template,
+    initialize: function(){
+    },
+    render: function(){
+      this.$el.html( this.template( this.model.toJSON() ));
+      return this;
+    }
+});
+
+module.exports = PostListItemView;
+
+},{"../../templates/postlistitem.hbs":5,"backbone":8}],4:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 var Handlebars = require('handlebars');
+var $ = require('jquery');
 
+var PostListItemView = require('./postlistitem');
 var template = require('../../templates/sidebar.hbs');
 
 var SidebarView = Backbone.View.extend({
   id: 'sidebarview',
   template: template,
   events: {
-    "this.collection change": "render",
-    "this.collection add": "render"
   },
   initialize: function(){
+    this.listenTo(this.collection, 'add', this.renderChild );
     this.render();
   },
+  renderChild: function( model ){
+    var post = new PostListItemView({ model: model });
+    console.log(this.$el.find('ul'));
+    this.$el.find('ul').append( post.render().el );
+  },
   render: function(){
-    this.$el.html( this.template( this.collection.toJSON() ) );
+    this.$el.html( template( ) );
     return this;
   }
 });
 
 module.exports = SidebarView;
 
-},{"../../templates/sidebar.hbs":4,"backbone":6,"handlebars":36}],4:[function(require,module,exports){
+},{"../../templates/sidebar.hbs":6,"./postlistitem":3,"backbone":8,"handlebars":38,"jquery":51}],5:[function(require,module,exports){
 "use strict";
-var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "  <a href=\"#\">\n    <li>"
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    return "<!DOCTYPE html>\n<a href=\"#\">\n  <li>"
     + container.escapeExpression(container.lambda((depth0 != null ? depth0.post_title : depth0), depth0))
-    + "</li>\n  </a>\n";
-},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1;
-
-  return "<!DOCTYPE html>\n<h2>Select A Post To Read</h2>\n<ul>\n"
-    + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "</ul>\n";
+    + "</li>\n</a>\n";
 },"useData":true});
-},{"handlebars/runtime":48}],5:[function(require,module,exports){
+},{"handlebars/runtime":50}],6:[function(require,module,exports){
+"use strict";
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    return "<!DOCTYPE html>\n<h2>Select A Post To Read</h2>\n<ul>\n</ul>\n";
+},"useData":true});
+},{"handlebars/runtime":50}],7:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 1.0.0 Copyright (c) 2011-2015, The Dojo Foundation All Rights Reserved.
@@ -374,7 +399,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this,require('_process'),"/node_modules/amdefine/amdefine.js")
-},{"_process":51,"path":50}],6:[function(require,module,exports){
+},{"_process":53,"path":52}],8:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2297,7 +2322,7 @@ module.exports = amdefine;
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":49,"underscore":52}],7:[function(require,module,exports){
+},{"jquery":51,"underscore":54}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2364,7 +2389,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars.runtime":8,"./handlebars/compiler/ast":10,"./handlebars/compiler/base":11,"./handlebars/compiler/compiler":13,"./handlebars/compiler/javascript-compiler":15,"./handlebars/compiler/visitor":18,"./handlebars/no-conflict":32}],8:[function(require,module,exports){
+},{"./handlebars.runtime":10,"./handlebars/compiler/ast":12,"./handlebars/compiler/base":13,"./handlebars/compiler/compiler":15,"./handlebars/compiler/javascript-compiler":17,"./handlebars/compiler/visitor":20,"./handlebars/no-conflict":34}],10:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2432,7 +2457,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars/base":9,"./handlebars/exception":22,"./handlebars/no-conflict":32,"./handlebars/runtime":33,"./handlebars/safe-string":34,"./handlebars/utils":35}],9:[function(require,module,exports){
+},{"./handlebars/base":11,"./handlebars/exception":24,"./handlebars/no-conflict":34,"./handlebars/runtime":35,"./handlebars/safe-string":36,"./handlebars/utils":37}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2538,7 +2563,7 @@ exports.createFrame = _utils.createFrame;
 exports.logger = _logger2['default'];
 
 
-},{"./decorators":20,"./exception":22,"./helpers":23,"./logger":31,"./utils":35}],10:[function(require,module,exports){
+},{"./decorators":22,"./exception":24,"./helpers":25,"./logger":33,"./utils":37}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2571,7 +2596,7 @@ exports['default'] = AST;
 module.exports = exports['default'];
 
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2621,7 +2646,7 @@ function parse(input, options) {
 }
 
 
-},{"../utils":35,"./helpers":14,"./parser":16,"./whitespace-control":19}],12:[function(require,module,exports){
+},{"../utils":37,"./helpers":16,"./parser":18,"./whitespace-control":21}],14:[function(require,module,exports){
 /* global define */
 'use strict';
 
@@ -2789,7 +2814,7 @@ exports['default'] = CodeGen;
 module.exports = exports['default'];
 
 
-},{"../utils":35,"source-map":37}],13:[function(require,module,exports){
+},{"../utils":37,"source-map":39}],15:[function(require,module,exports){
 /* eslint-disable new-cap */
 
 'use strict';
@@ -3363,7 +3388,7 @@ function transformLiteralToPath(sexpr) {
 }
 
 
-},{"../exception":22,"../utils":35,"./ast":10}],14:[function(require,module,exports){
+},{"../exception":24,"../utils":37,"./ast":12}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3595,7 +3620,7 @@ function preparePartialBlock(open, program, close, locInfo) {
 }
 
 
-},{"../exception":22}],15:[function(require,module,exports){
+},{"../exception":24}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4723,7 +4748,7 @@ exports['default'] = JavaScriptCompiler;
 module.exports = exports['default'];
 
 
-},{"../base":9,"../exception":22,"../utils":35,"./code-gen":12}],16:[function(require,module,exports){
+},{"../base":11,"../exception":24,"../utils":37,"./code-gen":14}],18:[function(require,module,exports){
 /* istanbul ignore next */
 /* Jison generated parser */
 "use strict";
@@ -5463,7 +5488,7 @@ var handlebars = (function () {
 exports['default'] = handlebars;
 
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /* eslint-disable new-cap */
 'use strict';
 
@@ -5651,7 +5676,7 @@ PrintVisitor.prototype.HashPair = function (pair) {
 /* eslint-enable new-cap */
 
 
-},{"./visitor":18}],18:[function(require,module,exports){
+},{"./visitor":20}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5793,7 +5818,7 @@ exports['default'] = Visitor;
 module.exports = exports['default'];
 
 
-},{"../exception":22}],19:[function(require,module,exports){
+},{"../exception":24}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6016,7 +6041,7 @@ exports['default'] = WhitespaceControl;
 module.exports = exports['default'];
 
 
-},{"./visitor":18}],20:[function(require,module,exports){
+},{"./visitor":20}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6034,7 +6059,7 @@ function registerDefaultDecorators(instance) {
 }
 
 
-},{"./decorators/inline":21}],21:[function(require,module,exports){
+},{"./decorators/inline":23}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6065,7 +6090,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":35}],22:[function(require,module,exports){
+},{"../utils":37}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6107,7 +6132,7 @@ exports['default'] = Exception;
 module.exports = exports['default'];
 
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6155,7 +6180,7 @@ function registerDefaultHelpers(instance) {
 }
 
 
-},{"./helpers/block-helper-missing":24,"./helpers/each":25,"./helpers/helper-missing":26,"./helpers/if":27,"./helpers/log":28,"./helpers/lookup":29,"./helpers/with":30}],24:[function(require,module,exports){
+},{"./helpers/block-helper-missing":26,"./helpers/each":27,"./helpers/helper-missing":28,"./helpers/if":29,"./helpers/log":30,"./helpers/lookup":31,"./helpers/with":32}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6196,7 +6221,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":35}],25:[function(require,module,exports){
+},{"../utils":37}],27:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6292,7 +6317,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":22,"../utils":35}],26:[function(require,module,exports){
+},{"../exception":24,"../utils":37}],28:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6319,7 +6344,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":22}],27:[function(require,module,exports){
+},{"../exception":24}],29:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6350,7 +6375,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":35}],28:[function(require,module,exports){
+},{"../utils":37}],30:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6378,7 +6403,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6392,7 +6417,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6427,7 +6452,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":35}],31:[function(require,module,exports){
+},{"../utils":37}],33:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6476,7 +6501,7 @@ exports['default'] = logger;
 module.exports = exports['default'];
 
 
-},{"./utils":35}],32:[function(require,module,exports){
+},{"./utils":37}],34:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -6500,7 +6525,7 @@ module.exports = exports['default'];
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6794,7 +6819,7 @@ function executeDecorators(fn, prog, container, depths, data, blockParams) {
 }
 
 
-},{"./base":9,"./exception":22,"./utils":35}],34:[function(require,module,exports){
+},{"./base":11,"./exception":24,"./utils":37}],36:[function(require,module,exports){
 // Build out our basic SafeString type
 'use strict';
 
@@ -6811,7 +6836,7 @@ exports['default'] = SafeString;
 module.exports = exports['default'];
 
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -6937,7 +6962,7 @@ function appendContextPath(contextPath, id) {
 }
 
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 // USAGE:
 // var handlebars = require('handlebars');
 /* eslint-disable no-var */
@@ -6964,7 +6989,7 @@ if (typeof require !== 'undefined' && require.extensions) {
   require.extensions['.hbs'] = extension;
 }
 
-},{"../dist/cjs/handlebars":7,"../dist/cjs/handlebars/compiler/printer":17,"fs":53}],37:[function(require,module,exports){
+},{"../dist/cjs/handlebars":9,"../dist/cjs/handlebars/compiler/printer":19,"fs":55}],39:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -6974,7 +6999,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":44,"./source-map/source-map-generator":45,"./source-map/source-node":46}],38:[function(require,module,exports){
+},{"./source-map/source-map-consumer":46,"./source-map/source-map-generator":47,"./source-map/source-node":48}],40:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7083,7 +7108,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":47,"amdefine":5}],39:[function(require,module,exports){
+},{"./util":49,"amdefine":7}],41:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7231,7 +7256,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":40,"amdefine":5}],40:[function(require,module,exports){
+},{"./base64":42,"amdefine":7}],42:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7306,7 +7331,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":5}],41:[function(require,module,exports){
+},{"amdefine":7}],43:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7425,7 +7450,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":5}],42:[function(require,module,exports){
+},{"amdefine":7}],44:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2014 Mozilla Foundation and contributors
@@ -7513,7 +7538,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":47,"amdefine":5}],43:[function(require,module,exports){
+},{"./util":49,"amdefine":7}],45:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7635,7 +7660,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":5}],44:[function(require,module,exports){
+},{"amdefine":7}],46:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -8714,7 +8739,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":38,"./base64-vlq":39,"./binary-search":41,"./quick-sort":43,"./util":47,"amdefine":5}],45:[function(require,module,exports){
+},{"./array-set":40,"./base64-vlq":41,"./binary-search":43,"./quick-sort":45,"./util":49,"amdefine":7}],47:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -9115,7 +9140,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":38,"./base64-vlq":39,"./mapping-list":42,"./util":47,"amdefine":5}],46:[function(require,module,exports){
+},{"./array-set":40,"./base64-vlq":41,"./mapping-list":44,"./util":49,"amdefine":7}],48:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -9531,7 +9556,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":45,"./util":47,"amdefine":5}],47:[function(require,module,exports){
+},{"./source-map-generator":47,"./util":49,"amdefine":7}],49:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -9903,12 +9928,12 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":5}],48:[function(require,module,exports){
+},{"amdefine":7}],50:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":8}],49:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":10}],51:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.1
  * http://jquery.com/
@@ -19741,7 +19766,7 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],50:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -19969,7 +19994,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":51}],51:[function(require,module,exports){
+},{"_process":53}],53:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -20062,7 +20087,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],52:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -21612,6 +21637,6 @@ process.umask = function() { return 0; };
   }
 }.call(this));
 
-},{}],53:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 
 },{}]},{},[1]);

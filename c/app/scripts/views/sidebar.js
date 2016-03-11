@@ -1,20 +1,26 @@
 var Backbone = require('backbone');
 var Handlebars = require('handlebars');
+var $ = require('jquery');
 
+var PostListItemView = require('./postlistitem');
 var template = require('../../templates/sidebar.hbs');
 
 var SidebarView = Backbone.View.extend({
   id: 'sidebarview',
   template: template,
   events: {
-    "this.collection change": "render",
-    "this.collection add": "render"
   },
   initialize: function(){
+    this.listenTo(this.collection, 'add', this.renderChild );
     this.render();
   },
+  renderChild: function( model ){
+    var post = new PostListItemView({ model: model });
+    console.log(this.$el.find('ul'));
+    this.$el.find('ul').append( post.render().el );
+  },
   render: function(){
-    this.$el.html( this.template( this.collection.toJSON() ) );
+    this.$el.html( template( ) );
     return this;
   }
 });
