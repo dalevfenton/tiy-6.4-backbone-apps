@@ -7,7 +7,6 @@ var ReaderView = Backbone.View.extend({
     this.listenTo( this.collection, 'change:showInReader', this.reset );
   },
   reset: function(newModel){
-    console.log('reset triggered');
     this.model.set({ showInReader: false });
     this.model = newModel;
     this.render();
