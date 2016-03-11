@@ -1,8 +1,19 @@
 var $ = require('jquery');
 var _ = require('underscore');
-var Handlebars = require('handlebars');
 var Backbone = require('backbone');
-//to include an external handlebars template named header.handlebars
-//just do a var header = require("./header.handlebars") assuming it is in
-//the scripts folder
-console.log("Hello World!");
+
+var models = require('./models/models');
+var FormView = require('./views/form');
+var UserList = require('./views/userlist');
+
+
+var people = new models.PersonCollection();
+var form = new FormView({ collection: people });
+var list = new UserList({ collection: people });
+
+$(function(){
+  people.fetch().done(function(){
+    $('#contact-form-holder').html( form.render().el );
+    $('#contacts-holder').html( list.render().el );
+  });
+});
