@@ -10,7 +10,6 @@ var BookmarkListView = Backbone.View.extend({
     this.render();
   },
   renderChild: function( model ){
-    console.log(model);
     var childView = new BookmarkView({ model: model });
     this.$el.append( childView.render().el );
   },

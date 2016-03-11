@@ -26,12 +26,27 @@ $(function(){
   });
 });
 
-},{"./models/models":2,"./views/bookmarklistview":3,"./views/taglist":5,"./views/urlform":6,"backbone":9,"jquery":29,"underscore":30}],2:[function(require,module,exports){
+},{"./models/models":2,"./views/bookmarklistview":3,"./views/taglist":5,"./views/urlform":6,"backbone":10,"jquery":30,"underscore":31}],2:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
+var _ = require('underscore');
+var $ = require('jquery');
 
 var Bookmark = Backbone.Model.extend({
-  idAttribute: '_id'
+  idAttribute: '_id',
+  defaults: {
+    'url_address': '',
+    'url_tags': '',
+    'url_title': ''
+  },
+  initialize: function(){
+    var tags = _.uniq( this.get('url_tags').split(',') );
+    tags = tags.map( function(tag){
+      if(tag.slice(0,1) === ' '){ tag = tag.slice(1); }
+      return tag;
+    });
+    this.set({'url_tags' : tags});
+  }
 });
 
 var BookmarkCollection = Backbone.Collection.extend({
@@ -44,7 +59,7 @@ module.exports = {
   BookmarkCollection: BookmarkCollection
 };
 
-},{"backbone":9}],3:[function(require,module,exports){
+},{"backbone":10,"jquery":30,"underscore":31}],3:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -58,7 +73,6 @@ var BookmarkListView = Backbone.View.extend({
     this.render();
   },
   renderChild: function( model ){
-    console.log(model);
     var childView = new BookmarkView({ model: model });
     this.$el.append( childView.render().el );
   },
@@ -70,7 +84,7 @@ var BookmarkListView = Backbone.View.extend({
 
 module.exports = BookmarkListView;
 
-},{"./bookmarkview":4,"backbone":9}],4:[function(require,module,exports){
+},{"./bookmarkview":4,"backbone":10}],4:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -80,9 +94,23 @@ var BookmarkView = Backbone.View.extend({
   className: "bookmark-item",
   template: template,
   initialize: function(){
+    this.listenTo(this.model, "change:filtered", this.filter);
     this.render();
   },
+  filter: function(){
+    console.log('filter triggered');
+    if( this.model.get('filtered') ){
+      this.hide();
+    }else{
+      this.render();
+    }
+  },
+  hide: function(){
+    this.$el.addClass('hidden');
+    return this;
+  },
   render: function(){
+    this.$el.removeClass('hidden');
     this.$el.html( template( this.model.toJSON() ));
     return this;
   }
@@ -90,30 +118,69 @@ var BookmarkView = Backbone.View.extend({
 
 module.exports = BookmarkView;
 
-},{"../../templates/bookmark.hbs":7,"backbone":9}],5:[function(require,module,exports){
+},{"../../templates/bookmark.hbs":7,"backbone":10}],5:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
+var _ = require('underscore');
+var $ = require('jquery');
 
+var template = require('../../templates/taglist.hbs');
 var TagListView = Backbone.View.extend({
-
+  defaults: {
+    tags: {}
+  },
+  events: {
+    "click .tags-input": "submitForm",
+    "submit": "setFiltered"
+  },
+  template: template,
   initialize: function(){
-    this.listenTo(this.collection, 'add', this.showTag );
+    this.listenTo(this.collection, 'add', this.getTags );
     this.render();
   },
-  showTag: function(){
-    var tags = this.collection;
-    console.log('inside showTag');
-    console.log(tags);
+  getTags: function(model){
+    var tags = _.uniq( model.get('url_tags') );
+    var tagsObj = tags.reduce(function(memo, tag){
+      memo[tag] = false;
+      return memo;
+    }, {} );
+    this.tags = $.extend({}, tagsObj, this.tags );
+    this.render();
+  },
+  submitForm: function(e){
+    $("#tags-form").trigger('submit');
+  },
+  setFiltered: function(e){
+    e.preventDefault();
+    var filterVals = this.$el.find(':input')
+                        .serializeArray()
+                        .reduce(function(memo, tag){
+                          memo.push( tag.value );
+                          return memo;
+                        }, [] );
+    if( !_.isEmpty(filterVals)){
+      this.collection.each(function(model){
+        if( _.isEmpty(_.difference( filterVals, model.get('url_tags'))) ){
+          model.set({ 'filtered': false });
+        }else{
+          model.set({ 'filtered': true});
+        }
+      });
+    }else{
+      this.collection.each(function(model){
+          model.set({ 'filtered': false});
+      });
+    }
   },
   render: function(){
-    this.$el.html('');
+    this.$el.html( this.template( _.omit(this.tags, "") ));
     return this;
   }
 });
 
 module.exports = TagListView;
 
-},{"backbone":9}],6:[function(require,module,exports){
+},{"../../templates/taglist.hbs":8,"backbone":10,"jquery":30,"underscore":31}],6:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 var _ = require('underscore');
@@ -151,7 +218,7 @@ var URLForm = Backbone.View.extend({
 
 module.exports = URLForm;
 
-},{"../../templates/urlform.hbs":8,"backbone":9,"jquery":29,"underscore":30}],7:[function(require,module,exports){
+},{"../../templates/urlform.hbs":9,"backbone":10,"jquery":30,"underscore":31}],7:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var alias1=container.lambda, alias2=container.escapeExpression;
@@ -160,14 +227,37 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
     + alias2(alias1((depth0 != null ? depth0.url_title : depth0), depth0))
     + "</div>\n<div class=\"url-display url-url-address\">"
     + alias2(alias1((depth0 != null ? depth0.url_address : depth0), depth0))
+    + "</div>\n<div class=\"url-display url-url-tags\">"
+    + alias2(alias1((depth0 != null ? depth0.url_tags : depth0), depth0))
     + "</div>\n";
 },"useData":true});
-},{"handlebars/runtime":28}],8:[function(require,module,exports){
+},{"handlebars/runtime":29}],8:[function(require,module,exports){
+"use strict";
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
+    var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+
+  return "  <div class=\"tags-input\">\n    <input id=\"check-"
+    + alias4(((helper = (helper = helpers.key || (data && data.key)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"key","hash":{},"data":data}) : helper)))
+    + "\" type=\"checkbox\" name=\"tags-checkboxes\" value=\""
+    + alias4(((helper = (helper = helpers.key || (data && data.key)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"key","hash":{},"data":data}) : helper)))
+    + "\">\n    <label for=\"check-"
+    + alias4(((helper = (helper = helpers.key || (data && data.key)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"key","hash":{},"data":data}) : helper)))
+    + "\">"
+    + alias4(((helper = (helper = helpers.key || (data && data.key)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"key","hash":{},"data":data}) : helper)))
+    + "</label>\n  </div>\n";
+},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<!DOCTYPE html>\n<form id=\"tags-form\">\n"
+    + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "</form>\n";
+},"useData":true});
+},{"handlebars/runtime":29}],9:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     return "<!DOCTYPE html>\n<button id=\"url-form-submit\" class=\"url-form-element\" type=\"submit\" name=\"submit\">+</button>\n<input id=\"url-form-url\" class=\"url-form-element\" type=\"text\" name=\"url_address\" placeholder=\"URL ( http://... )\">\n<input id=\"url-form-title\" class=\"url-form-element\" type=\"text\" name=\"url_title\" placeholder=\"Name Your BookMark\">\n<input id=\"url-form-tags\" class=\"url-form-element\" type=\"text\" name=\"url_tags\" placeholder=\"URL Tags ( you can add more with a comma separated list )\">\n";
 },"useData":true});
-},{"handlebars/runtime":28}],9:[function(require,module,exports){
+},{"handlebars/runtime":29}],10:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2090,7 +2180,7 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":29,"underscore":30}],10:[function(require,module,exports){
+},{"jquery":30,"underscore":31}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2158,7 +2248,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars/base":11,"./handlebars/exception":14,"./handlebars/no-conflict":24,"./handlebars/runtime":25,"./handlebars/safe-string":26,"./handlebars/utils":27}],11:[function(require,module,exports){
+},{"./handlebars/base":12,"./handlebars/exception":15,"./handlebars/no-conflict":25,"./handlebars/runtime":26,"./handlebars/safe-string":27,"./handlebars/utils":28}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2264,7 +2354,7 @@ exports.createFrame = _utils.createFrame;
 exports.logger = _logger2['default'];
 
 
-},{"./decorators":12,"./exception":14,"./helpers":15,"./logger":23,"./utils":27}],12:[function(require,module,exports){
+},{"./decorators":13,"./exception":15,"./helpers":16,"./logger":24,"./utils":28}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2282,7 +2372,7 @@ function registerDefaultDecorators(instance) {
 }
 
 
-},{"./decorators/inline":13}],13:[function(require,module,exports){
+},{"./decorators/inline":14}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2313,7 +2403,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":27}],14:[function(require,module,exports){
+},{"../utils":28}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2355,7 +2445,7 @@ exports['default'] = Exception;
 module.exports = exports['default'];
 
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2403,7 +2493,7 @@ function registerDefaultHelpers(instance) {
 }
 
 
-},{"./helpers/block-helper-missing":16,"./helpers/each":17,"./helpers/helper-missing":18,"./helpers/if":19,"./helpers/log":20,"./helpers/lookup":21,"./helpers/with":22}],16:[function(require,module,exports){
+},{"./helpers/block-helper-missing":17,"./helpers/each":18,"./helpers/helper-missing":19,"./helpers/if":20,"./helpers/log":21,"./helpers/lookup":22,"./helpers/with":23}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2444,7 +2534,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":27}],17:[function(require,module,exports){
+},{"../utils":28}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2540,7 +2630,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":14,"../utils":27}],18:[function(require,module,exports){
+},{"../exception":15,"../utils":28}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2567,7 +2657,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":14}],19:[function(require,module,exports){
+},{"../exception":15}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2598,7 +2688,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":27}],20:[function(require,module,exports){
+},{"../utils":28}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2626,7 +2716,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2640,7 +2730,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2675,7 +2765,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":27}],23:[function(require,module,exports){
+},{"../utils":28}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2724,7 +2814,7 @@ exports['default'] = logger;
 module.exports = exports['default'];
 
 
-},{"./utils":27}],24:[function(require,module,exports){
+},{"./utils":28}],25:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -2748,7 +2838,7 @@ module.exports = exports['default'];
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3042,7 +3132,7 @@ function executeDecorators(fn, prog, container, depths, data, blockParams) {
 }
 
 
-},{"./base":11,"./exception":14,"./utils":27}],26:[function(require,module,exports){
+},{"./base":12,"./exception":15,"./utils":28}],27:[function(require,module,exports){
 // Build out our basic SafeString type
 'use strict';
 
@@ -3059,7 +3149,7 @@ exports['default'] = SafeString;
 module.exports = exports['default'];
 
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3185,12 +3275,12 @@ function appendContextPath(contextPath, id) {
 }
 
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":10}],29:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":11}],30:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.1
  * http://jquery.com/
@@ -13023,7 +13113,7 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
