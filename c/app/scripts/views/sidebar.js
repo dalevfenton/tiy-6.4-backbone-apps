@@ -16,7 +16,6 @@ var SidebarView = Backbone.View.extend({
   },
   renderChild: function( model ){
     var post = new PostListItemView({ model: model });
-    console.log(this.$el.find('ul'));
     this.$el.find('ul').append( post.render().el );
   },
   render: function(){
