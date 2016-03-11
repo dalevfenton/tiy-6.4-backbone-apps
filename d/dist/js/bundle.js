@@ -8,12 +8,22 @@ var Backbone = require('backbone');
 var models = require('./models/models');
 
 var URLForm = require('./views/urlform');
+var BookmarkListView = require('./views/bookmarklistview');
+
 var bookmarks = new models.BookmarkCollection();
 var form = new URLForm({ collection: bookmarks });
+var bookmarkList = new BookmarkListView({ collection: bookmarks, el: $('#bookmark-list') });
 
 $('#new-url-form').html( form.render().el );
 
-},{"./models/models":2,"./views/urlform":3,"backbone":5,"jquery":25,"underscore":26}],2:[function(require,module,exports){
+
+$(function(){
+  bookmarks.fetch().done(function(){
+
+  });
+});
+
+},{"./models/models":2,"./views/bookmarklistview":3,"./views/urlform":5,"backbone":8,"jquery":28,"underscore":29}],2:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -31,7 +41,53 @@ module.exports = {
   BookmarkCollection: BookmarkCollection
 };
 
-},{"backbone":5}],3:[function(require,module,exports){
+},{"backbone":8}],3:[function(require,module,exports){
+"use strict";
+var Backbone = require('backbone');
+
+var BookmarkView = require('./bookmarkview');
+
+var BookmarkListView = Backbone.View.extend({
+  //we pass the existing dom element to this so no need to set
+  //a tagName / id / or className
+  initialize: function(){
+    this.listenTo(this.collection, 'add', this.renderChild );
+    this.render();
+  },
+  renderChild: function( model ){
+    console.log(model);
+    var childView = new BookmarkView({ model: model });
+    this.$el.append( childView.render().el );
+  },
+  render: function(){
+    this.$el.html('');
+    return this;
+  }
+});
+
+module.exports = BookmarkListView;
+
+},{"./bookmarkview":4,"backbone":8}],4:[function(require,module,exports){
+"use strict";
+var Backbone = require('backbone');
+
+var template = require('../../templates/bookmark.hbs');
+
+var BookmarkView = Backbone.View.extend({
+  className: "bookmark-item",
+  template: template,
+  initialize: function(){
+    this.render();
+  },
+  render: function(){
+    this.$el.html( template( this.model.toJSON() ));
+    return this;
+  }
+});
+
+module.exports = BookmarkView;
+
+},{"../../templates/bookmark.hbs":6,"backbone":8}],5:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 var _ = require('underscore');
@@ -69,12 +125,23 @@ var URLForm = Backbone.View.extend({
 
 module.exports = URLForm;
 
-},{"../../templates/urlform.hbs":4,"backbone":5,"jquery":25,"underscore":26}],4:[function(require,module,exports){
+},{"../../templates/urlform.hbs":7,"backbone":8,"jquery":28,"underscore":29}],6:[function(require,module,exports){
+"use strict";
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "<!DOCTYPE html>\n<button class=\"edit-bookmark\">Edit</button>\n<button class=\"delete-bookmark\">Delete</button>\n<div class=\"url-display url-url-title\">"
+    + alias2(alias1((depth0 != null ? depth0.url_title : depth0), depth0))
+    + "</div>\n<div class=\"url-display url-url-address\">"
+    + alias2(alias1((depth0 != null ? depth0.url_address : depth0), depth0))
+    + "</div>\n";
+},"useData":true});
+},{"handlebars/runtime":27}],7:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     return "<!DOCTYPE html>\n<button id=\"url-form-submit\" class=\"url-form-element\" type=\"submit\" name=\"submit\">+</button>\n<input id=\"url-form-url\" class=\"url-form-element\" type=\"text\" name=\"url_address\" placeholder=\"URL ( http://... )\">\n<input id=\"url-form-title\" class=\"url-form-element\" type=\"text\" name=\"url_title\" placeholder=\"Name Your BookMark\">\n<input id=\"url-form-tags\" class=\"url-form-element\" type=\"text\" name=\"url_tags\" placeholder=\"URL Tags ( you can add more with a comma separated list )\">\n";
 },"useData":true});
-},{"handlebars/runtime":24}],5:[function(require,module,exports){
+},{"handlebars/runtime":27}],8:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -1997,7 +2064,7 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":25,"underscore":26}],6:[function(require,module,exports){
+},{"jquery":28,"underscore":29}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2065,7 +2132,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars/base":7,"./handlebars/exception":10,"./handlebars/no-conflict":20,"./handlebars/runtime":21,"./handlebars/safe-string":22,"./handlebars/utils":23}],7:[function(require,module,exports){
+},{"./handlebars/base":10,"./handlebars/exception":13,"./handlebars/no-conflict":23,"./handlebars/runtime":24,"./handlebars/safe-string":25,"./handlebars/utils":26}],10:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2171,7 +2238,7 @@ exports.createFrame = _utils.createFrame;
 exports.logger = _logger2['default'];
 
 
-},{"./decorators":8,"./exception":10,"./helpers":11,"./logger":19,"./utils":23}],8:[function(require,module,exports){
+},{"./decorators":11,"./exception":13,"./helpers":14,"./logger":22,"./utils":26}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2189,7 +2256,7 @@ function registerDefaultDecorators(instance) {
 }
 
 
-},{"./decorators/inline":9}],9:[function(require,module,exports){
+},{"./decorators/inline":12}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2220,7 +2287,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":23}],10:[function(require,module,exports){
+},{"../utils":26}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2262,7 +2329,7 @@ exports['default'] = Exception;
 module.exports = exports['default'];
 
 
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2310,7 +2377,7 @@ function registerDefaultHelpers(instance) {
 }
 
 
-},{"./helpers/block-helper-missing":12,"./helpers/each":13,"./helpers/helper-missing":14,"./helpers/if":15,"./helpers/log":16,"./helpers/lookup":17,"./helpers/with":18}],12:[function(require,module,exports){
+},{"./helpers/block-helper-missing":15,"./helpers/each":16,"./helpers/helper-missing":17,"./helpers/if":18,"./helpers/log":19,"./helpers/lookup":20,"./helpers/with":21}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2351,7 +2418,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":23}],13:[function(require,module,exports){
+},{"../utils":26}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2447,7 +2514,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":10,"../utils":23}],14:[function(require,module,exports){
+},{"../exception":13,"../utils":26}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2474,7 +2541,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":10}],15:[function(require,module,exports){
+},{"../exception":13}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2505,7 +2572,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":23}],16:[function(require,module,exports){
+},{"../utils":26}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2533,7 +2600,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2547,7 +2614,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2582,7 +2649,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":23}],19:[function(require,module,exports){
+},{"../utils":26}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2631,7 +2698,7 @@ exports['default'] = logger;
 module.exports = exports['default'];
 
 
-},{"./utils":23}],20:[function(require,module,exports){
+},{"./utils":26}],23:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -2655,7 +2722,7 @@ module.exports = exports['default'];
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],21:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2949,7 +3016,7 @@ function executeDecorators(fn, prog, container, depths, data, blockParams) {
 }
 
 
-},{"./base":7,"./exception":10,"./utils":23}],22:[function(require,module,exports){
+},{"./base":10,"./exception":13,"./utils":26}],25:[function(require,module,exports){
 // Build out our basic SafeString type
 'use strict';
 
@@ -2966,7 +3033,7 @@ exports['default'] = SafeString;
 module.exports = exports['default'];
 
 
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3092,12 +3159,12 @@ function appendContextPath(contextPath, id) {
 }
 
 
-},{}],24:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":6}],25:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":9}],28:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.1
  * http://jquery.com/
@@ -12930,7 +12997,7 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],26:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

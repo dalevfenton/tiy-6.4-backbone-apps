@@ -5844,4 +5844,28 @@ body {
 #url-form-tags {
   width: 40%; }
 
+#bookmark-list {
+  background-color: #d8d8d8; }
+
+.bookmark-item {
+  padding: 5px 10px;
+  border-bottom: 1px solid #bebebe; }
+  .bookmark-item:nth-of-type(even) {
+    background-color: #bfbfbf; }
+
+.url-display {
+  margin-left: 2%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom; }
+
+.url-url-title {
+  width: 15%;
+  font-weight: bold; }
+
+.url-url-address {
+  width: 50%; }
+
 /*# sourceMappingURL=app.css.map */

@@ -44,3 +44,31 @@ body{
 #url-form-tags{
   width: 40%;
 }
+
+$bookmark-list-item-bg: rgb(216, 216, 216);
+
+#bookmark-list{
+  background-color: $bookmark-list-item-bg;
+}
+.bookmark-item{
+  padding: 5px 10px;
+  border-bottom: 1px solid rgb(190, 190, 190);
+  &:nth-of-type(even){
+    background-color: darken($bookmark-list-item-bg, 10%);
+  }
+}
+.url-display{
+  margin-left: 2%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+.url-url-title{
+  width: 15%;
+  font-weight: bold;
+}
+.url-url-address{
+  width: 50%;
+}
