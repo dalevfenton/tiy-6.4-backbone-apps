@@ -70,7 +70,6 @@ var Router = Backbone.Router.extend({
   },
   index: function(){
     this.posts.fetch().done(function(){
-
       console.log(this.posts);
     }.bind(this));
   },
@@ -111,7 +110,7 @@ var HeaderView = Backbone.View.extend({
   },
   search: function(e){
     e.preventDefault();
-    console.log('searched for: ', e.target[0].value );
+    Backbone.history.navigate('search/' + e.target[0].value, {trigger: true});
   }
 });
 
@@ -120,7 +119,7 @@ module.exports = HeaderView;
 },{"../../templates/header.hbs":5,"backbone":6}],5:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<!DOCTYPE html>\n<div class=\"container\">\n  <div id=\"top-logo\">\n    <span class=\"top-logo\"><span class=\"glyphicon glyphicon-education\" aria-hidden=\"true\"></span></span>\n    <span class=\"top-logo-title\">GENERIC CMS</span>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <div class=\"btn-group\" role=\"group\">\n        <input type=\"text\" name=\"top-search\" >\n        <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n      </div>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#login\">Login</a></li>\n    </ul>\n  </div>\n</div>\n";
+    return "<!DOCTYPE HTML>\n<div class=\"container\">\n  <div id=\"top-logo\">\n    <span class=\"top-logo\"><span class=\"glyphicon glyphicon-education\" aria-hidden=\"true\"></span></span>\n    <span class=\"top-logo-title\">GENERIC CMS</span>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <input type=\"text\" name=\"top-search\" placeholder=\"Search...\">\n      <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#login\">Login</a></li>\n    </ul>\n  </div>\n</div>\n";
 },"useData":true});
 },{"handlebars/runtime":25}],6:[function(require,module,exports){
 (function (global){

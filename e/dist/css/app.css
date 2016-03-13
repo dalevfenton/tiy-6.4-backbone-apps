@@ -5827,7 +5827,8 @@ body {
   background-color: #df7f00;
   color: white;
   font-weight: bold;
-  padding: 5px 0; }
+  padding: 5px 0;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.35); }
   #header a {
     color: white; }
   #header button {
@@ -5855,8 +5856,10 @@ body {
       width: 25%; } }
   #top-search input, #top-search button {
     height: 28px;
-    border: none;
-    outline: none; }
+    border: none; }
+  #top-search input {
+    padding-left: 5px;
+    color: #3c3c3c; }
   #top-search button {
     margin-left: -4px; }
 

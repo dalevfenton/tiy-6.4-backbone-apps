@@ -28,7 +28,6 @@ var Router = Backbone.Router.extend({
   },
   index: function(){
     this.posts.fetch().done(function(){
-
       console.log(this.posts);
     }.bind(this));
   },

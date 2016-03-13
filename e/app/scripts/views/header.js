@@ -17,7 +17,7 @@ var HeaderView = Backbone.View.extend({
   },
   search: function(e){
     e.preventDefault();
-    console.log('searched for: ', e.target[0].value );
+    Backbone.history.navigate('search/' + e.target[0].value, {trigger: true});
   }
 });
 
