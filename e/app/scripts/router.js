@@ -11,7 +11,8 @@ var models = require('./models/models');
 
 //VIEWS
 var HeaderView = require('./views/header');
-
+var IndexView = require('./views/index');
+var SinglePostView = require('./views/singlepost');
 
 var Router = Backbone.Router.extend({
   routes: {
@@ -28,14 +29,19 @@ var Router = Backbone.Router.extend({
   },
   index: function(){
     this.posts.fetch().done(function(){
-      console.log(this.posts);
+      var index = new IndexView({ collection: this.posts });
+      $('#app').html( index.el );
     }.bind(this));
   },
   login: function(){
     console.log('should be login form');
   },
   singlePost: function(id){
-    console.log('singlePost triggered');
+    this.posts.fetch().done(function(){
+      console.log(this.posts.get(id));
+      var post = new SinglePostView({ collection: this.posts, model: this.posts.get(id) });
+      $('#app').html( post.el );
+    }.bind(this));
   },
   search: function(query){
     console.log('searching for ', query);

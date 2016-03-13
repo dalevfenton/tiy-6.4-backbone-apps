@@ -7,6 +7,7 @@ $icon-font-path: '../../node_modules/bootstrap-sass/assets/fonts/bootstrap/';
 
 $orange-accent-color: rgb(223, 127, 0);
 $dark-grey-color: rgb(60, 60, 60);
+$light-grey-color: rgb(200, 200, 200);
 $white: rgb(255,255,255);
 
 *,
@@ -29,6 +30,8 @@ body{
   font-weight: bold;
   padding: 5px 0;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.35);
+  position: relative;
+  z-index: 10;
   a{
     color: $white;
   }
@@ -66,5 +69,22 @@ body{
     height: 28px;
     line-height: 28px;
     vertical-align: middle;
+  }
+}
+
+#app{
+  @include make-row();
+  padding-top: 25px;
+  background-color:$light-grey-color;
+}
+.post-index{
+  @include make-sm-column(12);
+  a{
+    color: $dark-grey-color;
+    &:hover{
+      // color: $dark-grey-color;
+      text-decoration: none;
+      border-bottom: 3px solid $orange-accent-color;
+    }
   }
 }

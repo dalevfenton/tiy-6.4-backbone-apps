@@ -20,7 +20,7 @@ $(function(){
   Backbone.history.start();
 });
 
-},{"./models/models":2,"./router":3,"backbone":6,"jquery":26,"underscore":27}],2:[function(require,module,exports){
+},{"./models/models":2,"./router":3,"backbone":10,"jquery":30,"underscore":31}],2:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -38,7 +38,7 @@ module.exports = {
   PostCollection: PostCollection
 };
 
-},{"backbone":6}],3:[function(require,module,exports){
+},{"backbone":10}],3:[function(require,module,exports){
 "use strict";
 // 3RD PARTY LIBS
 var Backbone = require('backbone');
@@ -53,7 +53,8 @@ var models = require('./models/models');
 
 //VIEWS
 var HeaderView = require('./views/header');
-
+var IndexView = require('./views/index');
+var SinglePostView = require('./views/singlepost');
 
 var Router = Backbone.Router.extend({
   routes: {
@@ -70,14 +71,19 @@ var Router = Backbone.Router.extend({
   },
   index: function(){
     this.posts.fetch().done(function(){
-      console.log(this.posts);
+      var index = new IndexView({ collection: this.posts });
+      $('#app').html( index.el );
     }.bind(this));
   },
   login: function(){
     console.log('should be login form');
   },
   singlePost: function(id){
-    console.log('singlePost triggered');
+    this.posts.fetch().done(function(){
+      console.log(this.posts.get(id));
+      var post = new SinglePostView({ collection: this.posts, model: this.posts.get(id) });
+      $('#app').html( post.el );
+    }.bind(this));
   },
   search: function(query){
     console.log('searching for ', query);
@@ -89,7 +95,7 @@ var Router = Backbone.Router.extend({
 
 module.exports = new Router();
 
-},{"./models/models":2,"./views/header":4,"backbone":6,"jquery":26}],4:[function(require,module,exports){
+},{"./models/models":2,"./views/header":4,"./views/index":5,"./views/singlepost":6,"backbone":10,"jquery":30}],4:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -116,12 +122,86 @@ var HeaderView = Backbone.View.extend({
 
 module.exports = HeaderView;
 
-},{"../../templates/header.hbs":5,"backbone":6}],5:[function(require,module,exports){
+},{"../../templates/header.hbs":7,"backbone":10}],5:[function(require,module,exports){
+"use strict";
+var Backbone = require('backbone');
+
+var template = require('../../templates/index.hbs');
+
+var IndexView = Backbone.View.extend({
+  template: template,
+
+  initialize: function(){
+    this.render();
+  },
+  render: function(){
+    this.$el.html( this.template( this.collection.toJSON() ) );
+    return this;
+  }
+});
+
+module.exports = IndexView;
+
+},{"../../templates/index.hbs":8,"backbone":10}],6:[function(require,module,exports){
+"use strict";
+var Backbone = require('backbone');
+
+var template = require('../../templates/singlepost.hbs');
+
+var SinglePostView = Backbone.View.extend({
+  template: template,
+
+  initialize: function(){
+    this.render();
+  },
+  render: function(){
+
+    this.$el.html( this.template( this.model.toJSON() ) );
+    return this;
+  }
+});
+
+module.exports = SinglePostView;
+
+},{"../../templates/singlepost.hbs":9,"backbone":10}],7:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<!DOCTYPE HTML>\n<div class=\"container\">\n  <div id=\"top-logo\">\n    <span class=\"top-logo\"><span class=\"glyphicon glyphicon-education\" aria-hidden=\"true\"></span></span>\n    <span class=\"top-logo-title\">GENERIC CMS</span>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <input type=\"text\" name=\"top-search\" placeholder=\"Search...\">\n      <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#login\">Login</a></li>\n    </ul>\n  </div>\n</div>\n";
+    return "<!DOCTYPE HTML>\n<div class=\"container\">\n  <div id=\"top-logo\">\n    <span class=\"top-logo\"><span class=\"glyphicon glyphicon-education\" aria-hidden=\"true\"></span></span>\n    <span class=\"top-logo-title\">generic cms</span>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <input type=\"text\" name=\"top-search\" placeholder=\"Search...\">\n      <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#login\">Login</a></li>\n    </ul>\n  </div>\n</div>\n";
 },"useData":true});
-},{"handlebars/runtime":25}],6:[function(require,module,exports){
+},{"handlebars/runtime":29}],8:[function(require,module,exports){
+"use strict";
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
+    var alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "<div id=\"post-"
+    + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
+    + "\" class=\"post-index\">\n  <a href=\"#posts/"
+    + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
+    + "\" ><h4>"
+    + alias2(alias1((depth0 != null ? depth0.post_title : depth0), depth0))
+    + "</h4></a>\n  <p>"
+    + alias2(alias1((depth0 != null ? depth0.post_post : depth0), depth0))
+    + "</p>\n</div>\n";
+},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<!DOCTYPE html>\n"
+    + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "");
+},"useData":true});
+},{"handlebars/runtime":29}],9:[function(require,module,exports){
+"use strict";
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "<!DOCTYPE html>\n<div id=\"post-"
+    + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
+    + "\" class=\"post-index\">\n  <h4>"
+    + alias2(alias1((depth0 != null ? depth0.post_title : depth0), depth0))
+    + "</h4>\n  <p>"
+    + alias2(alias1((depth0 != null ? depth0.post_post : depth0), depth0))
+    + "</p>\n</div>\n";
+},"useData":true});
+},{"handlebars/runtime":29}],10:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2044,7 +2124,7 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":26,"underscore":27}],7:[function(require,module,exports){
+},{"jquery":30,"underscore":31}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2112,7 +2192,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars/base":8,"./handlebars/exception":11,"./handlebars/no-conflict":21,"./handlebars/runtime":22,"./handlebars/safe-string":23,"./handlebars/utils":24}],8:[function(require,module,exports){
+},{"./handlebars/base":12,"./handlebars/exception":15,"./handlebars/no-conflict":25,"./handlebars/runtime":26,"./handlebars/safe-string":27,"./handlebars/utils":28}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2218,7 +2298,7 @@ exports.createFrame = _utils.createFrame;
 exports.logger = _logger2['default'];
 
 
-},{"./decorators":9,"./exception":11,"./helpers":12,"./logger":20,"./utils":24}],9:[function(require,module,exports){
+},{"./decorators":13,"./exception":15,"./helpers":16,"./logger":24,"./utils":28}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2236,7 +2316,7 @@ function registerDefaultDecorators(instance) {
 }
 
 
-},{"./decorators/inline":10}],10:[function(require,module,exports){
+},{"./decorators/inline":14}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2267,7 +2347,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":24}],11:[function(require,module,exports){
+},{"../utils":28}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2309,7 +2389,7 @@ exports['default'] = Exception;
 module.exports = exports['default'];
 
 
-},{}],12:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2357,7 +2437,7 @@ function registerDefaultHelpers(instance) {
 }
 
 
-},{"./helpers/block-helper-missing":13,"./helpers/each":14,"./helpers/helper-missing":15,"./helpers/if":16,"./helpers/log":17,"./helpers/lookup":18,"./helpers/with":19}],13:[function(require,module,exports){
+},{"./helpers/block-helper-missing":17,"./helpers/each":18,"./helpers/helper-missing":19,"./helpers/if":20,"./helpers/log":21,"./helpers/lookup":22,"./helpers/with":23}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2398,7 +2478,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":24}],14:[function(require,module,exports){
+},{"../utils":28}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2494,7 +2574,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":11,"../utils":24}],15:[function(require,module,exports){
+},{"../exception":15,"../utils":28}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2521,7 +2601,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":11}],16:[function(require,module,exports){
+},{"../exception":15}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2552,7 +2632,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":24}],17:[function(require,module,exports){
+},{"../utils":28}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2580,7 +2660,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],18:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2594,7 +2674,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],19:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2629,7 +2709,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":24}],20:[function(require,module,exports){
+},{"../utils":28}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2678,7 +2758,7 @@ exports['default'] = logger;
 module.exports = exports['default'];
 
 
-},{"./utils":24}],21:[function(require,module,exports){
+},{"./utils":28}],25:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -2702,7 +2782,7 @@ module.exports = exports['default'];
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],22:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2996,7 +3076,7 @@ function executeDecorators(fn, prog, container, depths, data, blockParams) {
 }
 
 
-},{"./base":8,"./exception":11,"./utils":24}],23:[function(require,module,exports){
+},{"./base":12,"./exception":15,"./utils":28}],27:[function(require,module,exports){
 // Build out our basic SafeString type
 'use strict';
 
@@ -3013,7 +3093,7 @@ exports['default'] = SafeString;
 module.exports = exports['default'];
 
 
-},{}],24:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3139,12 +3219,12 @@ function appendContextPath(contextPath, id) {
 }
 
 
-},{}],25:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":7}],26:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":11}],30:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.1
  * http://jquery.com/
@@ -12977,7 +13057,7 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],27:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
