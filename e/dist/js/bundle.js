@@ -58,22 +58,30 @@ var HeaderView = require('./views/header');
 var Router = Backbone.Router.extend({
   routes: {
     "": "index",
+    "login": "login",
     "posts/:id": "singlePost",
+    'search/:query': 'search',
     '*path':  'fourOhFour'
   },
   initialize: function(){
     this.posts = new models.PostCollection();
     this.header = new HeaderView({ collection: this.posts });
+    $('#header').html( this.header.el );
   },
   index: function(){
-    $('#header').html( this.header.el );
     this.posts.fetch().done(function(){
 
       console.log(this.posts);
     }.bind(this));
   },
+  login: function(){
+    console.log('should be login form');
+  },
   singlePost: function(id){
     console.log('singlePost triggered');
+  },
+  search: function(query){
+    console.log('searching for ', query);
   },
   fourOhFour: function(){
     console.log('nothing found at this address... Sorry!');
@@ -112,7 +120,7 @@ module.exports = HeaderView;
 },{"../../templates/header.hbs":5,"backbone":6}],5:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<!DOCTYPE html>\n<div class=\"constrain\">\n  <div id=\"top-logo\">\n    <span class=\"top-logo\"></span>\n    <h2 class=\"top-logo-title\">GENERIC CMS</h2>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <input type=\"text\" name=\"top-search\" >\n      <button type=\"submit\" name=\"submit\">Search</button>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#login\">Login</a></li>\n    </ul>\n  </div>\n</div>\n";
+    return "<!DOCTYPE html>\n<div class=\"container\">\n  <div id=\"top-logo\">\n    <span class=\"top-logo\"><span class=\"glyphicon glyphicon-education\" aria-hidden=\"true\"></span></span>\n    <span class=\"top-logo-title\">GENERIC CMS</span>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <div class=\"btn-group\" role=\"group\">\n        <input type=\"text\" name=\"top-search\" >\n        <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n      </div>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#login\">Login</a></li>\n    </ul>\n  </div>\n</div>\n";
 },"useData":true});
 },{"handlebars/runtime":25}],6:[function(require,module,exports){
 (function (global){

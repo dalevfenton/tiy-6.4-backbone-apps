@@ -5814,7 +5814,69 @@ button.close {
 *::after {
   box-sizing: border-box; }
 
+h1, h2, h3, h4, h5, h6 {
+  margin: 0; }
+
 img {
   max-width: 100%; }
+
+body {
+  background: #3c3c3c; }
+
+#header {
+  background-color: #df7f00;
+  color: white;
+  font-weight: bold;
+  padding: 5px 0; }
+  #header a {
+    color: white; }
+  #header button {
+    background-color: #3c3c3c; }
+
+#top-logo {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+  font-size: 20px; }
+  @media (min-width: 768px) {
+    #top-logo {
+      float: left;
+      width: 25%; } }
+
+#top-search {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px; }
+  @media (min-width: 768px) {
+    #top-search {
+      float: left;
+      width: 25%; } }
+  #top-search input, #top-search button {
+    height: 28px;
+    border: none;
+    outline: none; }
+  #top-search button {
+    margin-left: -4px; }
+
+#top-meta {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+  text-align: right; }
+  @media (min-width: 768px) {
+    #top-meta {
+      float: left;
+      width: 50%; } }
+  #top-meta ul {
+    list-style: none;
+    margin: 0;
+    padding: 0; }
+  #top-meta li {
+    height: 28px;
+    line-height: 28px;
+    vertical-align: middle; }
 
 /*# sourceMappingURL=app.css.map */
