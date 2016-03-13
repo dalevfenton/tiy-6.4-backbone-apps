@@ -30,7 +30,8 @@ var Post = Backbone.Model.extend({
 
 var PostCollection = Backbone.Collection.extend({
   model: Post,
-  url: 'http://tiny-lasagna-server.herokuapp.com/collections/daleposts'
+  url: 'http://tiny-lasagna-server.herokuapp.com/collections/daleposts',
+  comparator: 'id'
 });
 
 module.exports = {
@@ -62,6 +63,7 @@ var Router = Backbone.Router.extend({
     "login": "login",
     "posts/:id": "singlePost",
     'search/:query': 'search',
+    "new-post": 'newPost',
     '*path':  'fourOhFour'
   },
   initialize: function(){
@@ -84,6 +86,9 @@ var Router = Backbone.Router.extend({
       var post = new SinglePostView({ collection: this.posts, model: this.posts.get(id) });
       $('#app').html( post.el );
     }.bind(this));
+  },
+  newPost: function(){
+    console.log('new post triggered');
   },
   search: function(query){
     console.log('searching for ', query);
@@ -145,6 +150,7 @@ module.exports = IndexView;
 },{"../../templates/index.hbs":8,"backbone":10}],6:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
+var _ = require('underscore');
 
 var template = require('../../templates/singlepost.hbs');
 
@@ -155,18 +161,26 @@ var SinglePostView = Backbone.View.extend({
     this.render();
   },
   render: function(){
-
-    this.$el.html( this.template( this.model.toJSON() ) );
+    //get ids to include in links for next and previous posts
+    var navs = {};
+    var index = this.collection.indexOf( this.model );
+    if( index > 0 ){
+      navs.next = this.collection.at( index - 1 ).get('_id');
+    }
+    if( index < this.collection.length - 2 ){
+      navs.prev = this.collection.at( index + 1 ).get('_id');
+    }
+    this.$el.html( this.template( _.extend( {}, this.model.toJSON(), navs ) ) );
     return this;
   }
 });
 
 module.exports = SinglePostView;
 
-},{"../../templates/singlepost.hbs":9,"backbone":10}],7:[function(require,module,exports){
+},{"../../templates/singlepost.hbs":9,"backbone":10,"underscore":31}],7:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<!DOCTYPE HTML>\n<div class=\"container\">\n  <div id=\"top-logo\">\n    <span class=\"top-logo\"><span class=\"glyphicon glyphicon-education\" aria-hidden=\"true\"></span></span>\n    <span class=\"top-logo-title\">generic cms</span>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <input type=\"text\" name=\"top-search\" placeholder=\"Search...\">\n      <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#login\">Login</a></li>\n    </ul>\n  </div>\n</div>\n";
+    return "<!DOCTYPE HTML>\n<div class=\"container\">\n  <div id=\"top-logo\">\n    <a href=\"#\"><span class=\"top-logo\"><span class=\"glyphicon glyphicon-education\" aria-hidden=\"true\"></span></span>\n    <span class=\"top-logo-title\">generic cms</span></a>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <input type=\"text\" name=\"top-search\" placeholder=\"Search...\">\n      <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#new-post\"><span class=\"glyphicon glyphicon-plus\" aria-hidden=\"true\"></span>New Post</a></li>\n      <li><a href=\"#login\"><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span>Login</a></li>\n    </ul>\n  </div>\n</div>\n";
 },"useData":true});
 },{"handlebars/runtime":29}],8:[function(require,module,exports){
 "use strict";
@@ -190,16 +204,35 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 },"useData":true});
 },{"handlebars/runtime":29}],9:[function(require,module,exports){
 "use strict";
-var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    var alias1=container.lambda, alias2=container.escapeExpression;
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return "        <li class=\"previous-post\"><a href=\"#posts/"
+    + container.escapeExpression(((helper = (helper = helpers.prev || (depth0 != null ? depth0.prev : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"prev","hash":{},"data":data}) : helper)))
+    + "\">&lt; Previous Post</a></li>\n";
+},"3":function(container,depth0,helpers,partials,data) {
+    return "        <li class=\"previous-post\"><span class=\"disabled\">Previous Post</span></li>\n";
+},"5":function(container,depth0,helpers,partials,data) {
+    var helper;
+
+  return "        <li class=\"next-post\"><a href=\"#posts/"
+    + container.escapeExpression(((helper = (helper = helpers.next || (depth0 != null ? depth0.next : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"next","hash":{},"data":data}) : helper)))
+    + "\">Next Post &gt;</a></li>\n";
+},"7":function(container,depth0,helpers,partials,data) {
+    return "        <li class=\"next-post\"><span class=\"disabled\">Next Post</span></li>\n";
+},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : {};
 
   return "<!DOCTYPE html>\n<div id=\"post-"
     + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
-    + "\" class=\"post-index\">\n  <h4>"
+    + "\" class=\"post-index\">\n  <div class=\"back-to-index\">\n    <a href=\"#\">&lt;-- Back to Blog View</a>\n  </div>\n  <h4>"
     + alias2(alias1((depth0 != null ? depth0.post_title : depth0), depth0))
     + "</h4>\n  <p>"
     + alias2(alias1((depth0 != null ? depth0.post_post : depth0), depth0))
-    + "</p>\n</div>\n";
+    + "</p>\n  <div class=\"navigation\">\n    <ul>\n"
+    + ((stack1 = helpers["if"].call(alias3,(depth0 != null ? depth0.prev : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias3,(depth0 != null ? depth0.next : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.program(7, data, 0),"data":data})) != null ? stack1 : "")
+    + "    </ul>\n  </div>\n</div>\n";
 },"useData":true});
 },{"handlebars/runtime":29}],10:[function(require,module,exports){
 (function (global){

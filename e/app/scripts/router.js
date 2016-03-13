@@ -20,6 +20,7 @@ var Router = Backbone.Router.extend({
     "login": "login",
     "posts/:id": "singlePost",
     'search/:query': 'search',
+    "new-post": 'newPost',
     '*path':  'fourOhFour'
   },
   initialize: function(){
@@ -42,6 +43,9 @@ var Router = Backbone.Router.extend({
       var post = new SinglePostView({ collection: this.posts, model: this.posts.get(id) });
       $('#app').html( post.el );
     }.bind(this));
+  },
+  newPost: function(){
+    console.log('new post triggered');
   },
   search: function(query){
     console.log('searching for ', query);

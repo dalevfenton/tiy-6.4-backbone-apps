@@ -18,11 +18,23 @@ $white: rgb(255,255,255);
 h1,h2,h3,h4,h5,h6{
   margin: 0;
 }
+ul{
+  margin: 0;
+  padding: 0;
+}
 img {
   max-width: 100%;
 }
 body{
   background: $dark-grey-color;
+  a{
+    color: $dark-grey-color;
+    &:hover{
+      // color: $dark-grey-color;
+      text-decoration: none;
+      border-bottom: 3px solid $orange-accent-color;
+    }
+  }
 }
 #header{
   background-color: $orange-accent-color;
@@ -40,7 +52,7 @@ body{
   }
 }
 #top-logo{
-  @include make-sm-column(3);
+  @include make-sm-column(2);
   font-size: 20px;
 }
 #top-search{
@@ -50,10 +62,12 @@ body{
     border: none;
   }
   input{
+    width: 85%;
     padding-left: 5px;
     color: $dark-grey-color;
   }
   button{
+    width: 15%;
     margin-left: -4px;
   }
 }
@@ -62,10 +76,10 @@ body{
   text-align: right;
   ul{
     list-style: none;
-    margin: 0;
-    padding: 0;
   }
   li{
+    display: inline-block;
+    margin-left: 15px;
     height: 28px;
     line-height: 28px;
     vertical-align: middle;
@@ -79,12 +93,26 @@ body{
 }
 .post-index{
   @include make-sm-column(12);
-  a{
-    color: $dark-grey-color;
-    &:hover{
-      // color: $dark-grey-color;
-      text-decoration: none;
-      border-bottom: 3px solid $orange-accent-color;
+  padding-bottom: 20px;
+}
+.navigation{
+  ul{
+    list-style: none;
+  }
+  li{
+    display: inline-block;
+    a{
+      font-weight: bold;
     }
   }
+}
+.previous-post, .next-post{
+  width: 50%;
+}
+.next-post{
+  margin-left: -4px;
+  text-align: right;
+}
+.disabled{
+  color: darken($light-grey-color, 25%);
 }
