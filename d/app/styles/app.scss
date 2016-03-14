@@ -1,0 +1,92 @@
+
+// Bootstrap Variables
+$icon-font-path: '../../node_modules/bootstrap-sass/assets/fonts/bootstrap/';
+
+// Import Bootstrap
+@import '../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap';
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+}
+body{
+  background-color: rgb(61, 61, 61);
+}
+#new-url-form{
+  background: rgb(220, 127, 14);
+  padding: 10px;
+}
+.url-form-element{
+  height: 25px;
+  background-color: rgb(216, 216, 216);
+  &:not(:last-of-type){
+    margin-right: 2%;
+  }
+}
+#url-form-submit{
+  border: 2px inset;
+  margin-right: 2%;
+  width: 2%;
+  // font-size: 20px;
+}
+#url-form-url{
+  width: 30%;
+}
+#url-form-title{
+  width: 20%;
+}
+#url-form-tags{
+  width: 40%;
+}
+
+$bookmark-list-item-bg: rgb(216, 216, 216);
+
+#bookmark-list{
+  background-color: $bookmark-list-item-bg;
+}
+.bookmark-item{
+  padding: 5px 10px;
+  border-bottom: 1px solid rgb(190, 190, 190);
+  &:nth-of-type(even){
+    background-color: darken($bookmark-list-item-bg, 10%);
+  }
+}
+.url-display{
+  margin-left: 2%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+.url-url-title{
+  width: 15%;
+  font-weight: bold;
+}
+.url-url-address{
+  width: 50%;
+}
+.url-url-tags{
+  width: 15%;
+}
+
+#tag-list{
+  background: rgb(220, 127, 14);
+  padding: 10px;
+  text-align: center;
+}
+.tags-input{
+  display: inline-block;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgb(170, 82, 12);
+  margin-right: 10px;
+}
+.hidden{
+  display: none;
+}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{{#if results}}
+  <h3 class="search-title">Your search for <b>{{this.query}}</b> returned {{this.numResults}} results</h3>
+  <h5 class="search-title">Browse them below or try another search</h5>
+  <div id="search-search">
+    <form id="search-search-form">
+      <input type="text" name="search-search" placeholder="Try Another Search...">
+      <button type="submit" name="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+    </form>
+  </div>
+  {{#each results}}
+  <div id="search-{{this._id}}" class="search-result post-list">
+    <a href="#posts/{{this._id}}" ><h4>{{this.post_title}}</h4></a>
+    <p>{{this.post_post}}</p>
+  </div>
+  {{/each}}
+{{else}}
+  <h3 class="search-title">Sorry, your search for <b>{{this.query}}</b> didn't match any posts</h3>
+  <div id="search-search">
+    <form id="search-search-form">
+      <input type="text" name="search-search" placeholder="Try Another Search...">
+      <button type="submit" name="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+    </form>
+  </div>
+{{/if}}

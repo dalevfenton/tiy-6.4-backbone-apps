@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<div id="post-{{this._id}}" class="post-index post-list">
+  <div class="back-to-index">
+    <a href="#">&lt;-- Back to Blog View</a>
+  </div>
+  <h4>{{this.post_title}}</h4>
+  <div class="post-controls">
+    <button type="button" class="edit-button">Edit This Post</button>
+    <button type="button" class="delete-button">Delete This Post</button>
+  </div>
+  <p>{{this.post_post}}</p>
+  <div class="navigation">
+    <ul>
+      {{#if prev}}
+        <li class="previous-post"><a href="#posts/{{prev}}">&lt; Previous Post</a></li>
+      {{else}}
+        <li class="previous-post"><span class="disabled">Previous Post</span></li>
+      {{/if}}
+      {{#if next}}
+        <li class="next-post"><a href="#posts/{{next}}">Next Post &gt;</a></li>
+      {{else}}
+        <li class="next-post"><span class="disabled">Next Post</span></li>
+      {{/if}}
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+{{#each this}}
+<div id="post-{{this._id}}" class="post-index post-list">
+  <a href="#posts/{{this._id}}" ><h4>{{this.post_title}}</h4></a>
+  <p>{{this.post_post}}</p>
+</div>
+{{/each}}

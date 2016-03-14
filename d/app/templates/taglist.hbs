@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<form id="tags-form">
+{{#each this}}
+  <div class="tags-input">
+    <input id="check-{{@key}}" type="checkbox" name="tags-checkboxes" value="{{@key}}">
+    <label for="check-{{@key}}">{{@key}}</label>
+  </div>
+{{/each}}
+</form>
