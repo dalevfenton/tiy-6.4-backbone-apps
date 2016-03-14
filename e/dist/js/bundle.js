@@ -160,6 +160,7 @@ var IndexView = Backbone.View.extend({
   template: template,
 
   initialize: function(){
+    this.listenTo( this.collection, 'sync', this.render );
     this.render();
     // this.listenTo(this.collection, 'change', this.render );
   },
@@ -293,7 +294,7 @@ var SinglePostView = Backbone.View.extend({
   delete: function(e){
     e.preventDefault();
     //we really should bring up a confirmation dialog before deleting
-    this.model.destroy();
+    this.model.destroy({wait: true});
     Backbone.history.navigate('', {trigger: true});
   },
   cancelEdit: function(e){
@@ -312,6 +313,10 @@ var SinglePostView = Backbone.View.extend({
     this.render();
   },
   render: function(){
+    //we need to validate that we have a model that is in the collection and
+    //that we haven't just ended up on a post that doesn't exist anymore or
+    //never existed at all -- NOT IMPLEMENTED
+
     //get ids to include in links for next and previous posts
     var navs = {};
     var index = this.collection.indexOf( this.model );

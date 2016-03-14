@@ -6,6 +6,7 @@ var IndexView = Backbone.View.extend({
   template: template,
 
   initialize: function(){
+    this.listenTo( this.collection, 'sync', this.render );
     this.render();
     // this.listenTo(this.collection, 'change', this.render );
   },
