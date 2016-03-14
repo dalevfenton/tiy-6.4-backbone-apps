@@ -13,9 +13,11 @@ var models = require('./models/models');
 var HeaderView = require('./views/header');
 var IndexView = require('./views/index');
 var SinglePostView = require('./views/singlepost');
-
-//TEMPLATES
+var SearchView = require('./views/search');
+//TEMPLATES - used only on static pages that don't need content
+//            or events offered by Views
 var fourOhFourTempl = require('../templates/fourOhFour.hbs');
+
 //==============================================================================
 //                            ROUTER
 //==============================================================================
@@ -32,7 +34,7 @@ var Router = Backbone.Router.extend({
   },
   initialize: function(){
     this.posts = new models.PostCollection();
-    this.header = new HeaderView({ collection: this.posts });
+    this.header = new HeaderView({ collection: this.posts, router: this });
     $('#header').html( this.header.el );
   },
   index: function(){
@@ -43,12 +45,12 @@ var Router = Backbone.Router.extend({
   },
   login: function(){
     //not implemented, would do user auth and setup a session
-    //so other pages could check if user is loggedin
+    //so other pages could check if user is logged in as well
+    //as provide access to admin area
     console.log('should be login form');
   },
   singlePost: function(id){
     this.posts.fetch().done(function(){
-      console.log(this.posts.get(id));
       var post = new SinglePostView({ collection: this.posts, model: this.posts.get(id) });
       $('#app').html( post.el );
     }.bind(this));
@@ -59,12 +61,16 @@ var Router = Backbone.Router.extend({
   },
   search: function(query){
     //search results view
-    console.log('searching for ', query);
+    this.posts.fetch().done(function(){
+      var search = new SearchView({ collection: this.posts, query: query });
+      $('#app').html( search.el );
+    }.bind(this));
+    // console.log('searching for ', query);
   },
   fourOhFour: function( path ){
     //if we don't match a route then show a 404 page as that url
     //doesn't exist on our domain
-    $('#app').html( fourOhFourTempl({path: path}) );
+    $('#app').html( fourOhFourTempl( {path: path} ) );
   }
 });
 

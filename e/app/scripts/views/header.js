@@ -8,7 +8,7 @@ var HeaderView = Backbone.View.extend({
   events: {
     "submit": "search"
   },
-  initialize: function(){
+  initialize: function(options){
     this.render();
   },
   render: function(){

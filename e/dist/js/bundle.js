@@ -20,7 +20,7 @@ $(function(){
   Backbone.history.start();
 });
 
-},{"./models/models":2,"./router":3,"backbone":11,"jquery":31,"underscore":32}],2:[function(require,module,exports){
+},{"./models/models":2,"./router":3,"backbone":13,"jquery":33,"underscore":34}],2:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -39,7 +39,7 @@ module.exports = {
   PostCollection: PostCollection
 };
 
-},{"backbone":11}],3:[function(require,module,exports){
+},{"backbone":13}],3:[function(require,module,exports){
 "use strict";
 // 3RD PARTY LIBS
 var Backbone = require('backbone');
@@ -56,9 +56,11 @@ var models = require('./models/models');
 var HeaderView = require('./views/header');
 var IndexView = require('./views/index');
 var SinglePostView = require('./views/singlepost');
-
-//TEMPLATES
+var SearchView = require('./views/search');
+//TEMPLATES - used only on static pages that don't need content
+//            or events offered by Views
 var fourOhFourTempl = require('../templates/fourOhFour.hbs');
+
 //==============================================================================
 //                            ROUTER
 //==============================================================================
@@ -75,7 +77,7 @@ var Router = Backbone.Router.extend({
   },
   initialize: function(){
     this.posts = new models.PostCollection();
-    this.header = new HeaderView({ collection: this.posts });
+    this.header = new HeaderView({ collection: this.posts, router: this });
     $('#header').html( this.header.el );
   },
   index: function(){
@@ -86,12 +88,12 @@ var Router = Backbone.Router.extend({
   },
   login: function(){
     //not implemented, would do user auth and setup a session
-    //so other pages could check if user is loggedin
+    //so other pages could check if user is logged in as well
+    //as provide access to admin area
     console.log('should be login form');
   },
   singlePost: function(id){
     this.posts.fetch().done(function(){
-      console.log(this.posts.get(id));
       var post = new SinglePostView({ collection: this.posts, model: this.posts.get(id) });
       $('#app').html( post.el );
     }.bind(this));
@@ -102,19 +104,23 @@ var Router = Backbone.Router.extend({
   },
   search: function(query){
     //search results view
-    console.log('searching for ', query);
+    this.posts.fetch().done(function(){
+      var search = new SearchView({ collection: this.posts, query: query });
+      $('#app').html( search.el );
+    }.bind(this));
+    // console.log('searching for ', query);
   },
   fourOhFour: function( path ){
     //if we don't match a route then show a 404 page as that url
     //doesn't exist on our domain
-    $('#app').html( fourOhFourTempl({path: path}) );
+    $('#app').html( fourOhFourTempl( {path: path} ) );
   }
 });
 
 //EXPORT ROUTER TO index.js
 module.exports = new Router();
 
-},{"../templates/fourOhFour.hbs":7,"./models/models":2,"./views/header":4,"./views/index":5,"./views/singlepost":6,"backbone":11,"jquery":31}],4:[function(require,module,exports){
+},{"../templates/fourOhFour.hbs":8,"./models/models":2,"./views/header":4,"./views/index":5,"./views/search":6,"./views/singlepost":7,"backbone":13,"jquery":33}],4:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -126,7 +132,7 @@ var HeaderView = Backbone.View.extend({
   events: {
     "submit": "search"
   },
-  initialize: function(){
+  initialize: function(options){
     this.render();
   },
   render: function(){
@@ -141,7 +147,7 @@ var HeaderView = Backbone.View.extend({
 
 module.exports = HeaderView;
 
-},{"../../templates/header.hbs":8,"backbone":11}],5:[function(require,module,exports){
+},{"../../templates/header.hbs":9,"backbone":13}],5:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 
@@ -152,6 +158,7 @@ var IndexView = Backbone.View.extend({
 
   initialize: function(){
     this.render();
+    // this.listenTo(this.collection, 'change', this.render );
   },
   render: function(){
     this.$el.html( this.template( this.collection.toJSON() ) );
@@ -161,7 +168,64 @@ var IndexView = Backbone.View.extend({
 
 module.exports = IndexView;
 
-},{"../../templates/index.hbs":9,"backbone":11}],6:[function(require,module,exports){
+},{"../../templates/index.hbs":10,"backbone":13}],6:[function(require,module,exports){
+"use strict";
+var Backbone = require('backbone');
+var _ = require('underscore');
+var $ = require('jquery');
+
+var template = require('../../templates/search.hbs');
+
+var SearchView = Backbone.View.extend({
+  template: template,
+  id: "search-view",
+  className: "",
+  events: {
+    "submit #search-search-form": "reSearch"
+  },
+  initialize: function(options){
+    this.query = options.query;
+    this.render();
+  },
+  reSearch: function(e){
+    e.preventDefault();
+    this.query = e.currentTarget[0].value;
+    this.render();
+  },
+  render: function(){
+    //set the query
+    var query = this.query;
+    //filter out matching posts
+    var matches = this.collection.filter(function(model) {
+      //loop over all attributes of the post and check if the query string
+      //is present in any of them
+      var atts = _.omit( model.attributes, "_id");
+      var match = false;
+      $.each( atts, function(att){
+        if(model.get(att).toLowerCase().indexOf(query.toLowerCase()) > -1 ){
+          match = true;
+        }
+      });
+      return match;
+    });
+    //get the JSON object of the matching posts
+    matches = matches.map(function(match){
+      return match.toJSON();
+    });
+
+    //if we have matches send them to the template, otherwise just the query string
+    if( matches.length ){
+      this.$el.html( this.template( { results: matches, query: this.query, numResults: matches.length } ) );
+    }else{
+      this.$el.html( this.template( {  query: this.query } ) );
+    }
+    return this;
+  }
+});
+
+module.exports = SearchView;
+
+},{"../../templates/search.hbs":11,"backbone":13,"jquery":33,"underscore":34}],7:[function(require,module,exports){
 "use strict";
 var Backbone = require('backbone');
 var _ = require('underscore');
@@ -191,26 +255,26 @@ var SinglePostView = Backbone.View.extend({
 
 module.exports = SinglePostView;
 
-},{"../../templates/singlepost.hbs":10,"backbone":11,"underscore":32}],7:[function(require,module,exports){
+},{"../../templates/singlepost.hbs":12,"backbone":13,"underscore":34}],8:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     return "<!DOCTYPE html>\n<div class=\"fourohfour\">\n  <h1>404 Error - Sorry but this page doesn't exist here</h1>\n  <p>\n    We couldn't find the page located at: {this website}/#"
     + container.escapeExpression(container.lambda((depth0 != null ? depth0.path : depth0), depth0))
     + "<br>\n    If you think there is an error please report it to us at <a href=\"mailto:admin@test.com\">admin@test.com</a>\n\n    Return back to safety here: <a href=\"#\">Homepage</a>\n  </p>\n</div>\n";
 },"useData":true});
-},{"handlebars/runtime":30}],8:[function(require,module,exports){
+},{"handlebars/runtime":32}],9:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     return "<!DOCTYPE HTML>\n<div class=\"container\">\n  <div id=\"top-logo\">\n    <a href=\"#\"><span class=\"top-logo\"><span class=\"glyphicon glyphicon-education\" aria-hidden=\"true\"></span></span>\n    <span class=\"top-logo-title\">generic cms</span></a>\n  </div>\n  <div id=\"top-search\">\n    <form id=\"top-search-form\">\n      <input type=\"text\" name=\"top-search\" placeholder=\"Search...\">\n      <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n    </form>\n  </div>\n  <div id=\"top-meta\">\n    <ul>\n      <li><a href=\"#new-post\"><span class=\"glyphicon glyphicon-plus\" aria-hidden=\"true\"></span>New Post</a></li>\n      <li><a href=\"#login\"><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span>Login</a></li>\n    </ul>\n  </div>\n</div>\n";
 },"useData":true});
-},{"handlebars/runtime":30}],9:[function(require,module,exports){
+},{"handlebars/runtime":32}],10:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
     var alias1=container.lambda, alias2=container.escapeExpression;
 
   return "<div id=\"post-"
     + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
-    + "\" class=\"post-index\">\n  <a href=\"#posts/"
+    + "\" class=\"post-index post-list\">\n  <a href=\"#posts/"
     + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
     + "\" ><h4>"
     + alias2(alias1((depth0 != null ? depth0.post_title : depth0), depth0))
@@ -223,7 +287,40 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
   return "<!DOCTYPE html>\n"
     + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "");
 },"useData":true});
-},{"handlebars/runtime":30}],10:[function(require,module,exports){
+},{"handlebars/runtime":32}],11:[function(require,module,exports){
+"use strict";
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "  <h3 class=\"search-title\">Your search for <b>"
+    + alias2(alias1((depth0 != null ? depth0.query : depth0), depth0))
+    + "</b> returned "
+    + alias2(alias1((depth0 != null ? depth0.numResults : depth0), depth0))
+    + " results</h3>\n  <h5 class=\"search-title\">Browse them below or try another search</h5>\n  <div id=\"search-search\">\n    <form id=\"search-search-form\">\n      <input type=\"text\" name=\"search-search\" placeholder=\"Try Another Search...\">\n      <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n    </form>\n  </div>\n"
+    + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},(depth0 != null ? depth0.results : depth0),{"name":"each","hash":{},"fn":container.program(2, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "");
+},"2":function(container,depth0,helpers,partials,data) {
+    var alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "  <div id=\"search-"
+    + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
+    + "\" class=\"search-result post-list\">\n    <a href=\"#posts/"
+    + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
+    + "\" ><h4>"
+    + alias2(alias1((depth0 != null ? depth0.post_title : depth0), depth0))
+    + "</h4></a>\n    <p>"
+    + alias2(alias1((depth0 != null ? depth0.post_post : depth0), depth0))
+    + "</p>\n  </div>\n";
+},"4":function(container,depth0,helpers,partials,data) {
+    return "  <h3 class=\"search-title\">Sorry, your search for <b>"
+    + container.escapeExpression(container.lambda((depth0 != null ? depth0.query : depth0), depth0))
+    + "</b> didn't match any posts</h3>\n  <div id=\"search-search\">\n    <form id=\"search-search-form\">\n      <input type=\"text\" name=\"search-search\" placeholder=\"Try Another Search...\">\n      <button type=\"submit\" name=\"submit\"><span class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></span></button>\n    </form>\n  </div>\n";
+},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<!DOCTYPE html>\n"
+    + ((stack1 = helpers["if"].call(depth0 != null ? depth0 : {},(depth0 != null ? depth0.results : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(4, data, 0),"data":data})) != null ? stack1 : "");
+},"useData":true});
+},{"handlebars/runtime":32}],12:[function(require,module,exports){
 "use strict";
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
     var helper;
@@ -246,7 +343,7 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 
   return "<!DOCTYPE html>\n<div id=\"post-"
     + alias2(alias1((depth0 != null ? depth0._id : depth0), depth0))
-    + "\" class=\"post-index\">\n  <div class=\"back-to-index\">\n    <a href=\"#\">&lt;-- Back to Blog View</a>\n  </div>\n  <h4>"
+    + "\" class=\"post-index post-list\">\n  <div class=\"back-to-index\">\n    <a href=\"#\">&lt;-- Back to Blog View</a>\n  </div>\n  <h4>"
     + alias2(alias1((depth0 != null ? depth0.post_title : depth0), depth0))
     + "</h4>\n  <p>"
     + alias2(alias1((depth0 != null ? depth0.post_post : depth0), depth0))
@@ -255,7 +352,7 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
     + ((stack1 = helpers["if"].call(alias3,(depth0 != null ? depth0.next : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.program(7, data, 0),"data":data})) != null ? stack1 : "")
     + "    </ul>\n  </div>\n</div>\n";
 },"useData":true});
-},{"handlebars/runtime":30}],11:[function(require,module,exports){
+},{"handlebars/runtime":32}],13:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2178,7 +2275,7 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":31,"underscore":32}],12:[function(require,module,exports){
+},{"jquery":33,"underscore":34}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2246,7 +2343,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars/base":13,"./handlebars/exception":16,"./handlebars/no-conflict":26,"./handlebars/runtime":27,"./handlebars/safe-string":28,"./handlebars/utils":29}],13:[function(require,module,exports){
+},{"./handlebars/base":15,"./handlebars/exception":18,"./handlebars/no-conflict":28,"./handlebars/runtime":29,"./handlebars/safe-string":30,"./handlebars/utils":31}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2352,7 +2449,7 @@ exports.createFrame = _utils.createFrame;
 exports.logger = _logger2['default'];
 
 
-},{"./decorators":14,"./exception":16,"./helpers":17,"./logger":25,"./utils":29}],14:[function(require,module,exports){
+},{"./decorators":16,"./exception":18,"./helpers":19,"./logger":27,"./utils":31}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2370,7 +2467,7 @@ function registerDefaultDecorators(instance) {
 }
 
 
-},{"./decorators/inline":15}],15:[function(require,module,exports){
+},{"./decorators/inline":17}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2401,7 +2498,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":29}],16:[function(require,module,exports){
+},{"../utils":31}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2443,7 +2540,7 @@ exports['default'] = Exception;
 module.exports = exports['default'];
 
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2491,7 +2588,7 @@ function registerDefaultHelpers(instance) {
 }
 
 
-},{"./helpers/block-helper-missing":18,"./helpers/each":19,"./helpers/helper-missing":20,"./helpers/if":21,"./helpers/log":22,"./helpers/lookup":23,"./helpers/with":24}],18:[function(require,module,exports){
+},{"./helpers/block-helper-missing":20,"./helpers/each":21,"./helpers/helper-missing":22,"./helpers/if":23,"./helpers/log":24,"./helpers/lookup":25,"./helpers/with":26}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2532,7 +2629,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":29}],19:[function(require,module,exports){
+},{"../utils":31}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2628,7 +2725,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":16,"../utils":29}],20:[function(require,module,exports){
+},{"../exception":18,"../utils":31}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2655,7 +2752,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":16}],21:[function(require,module,exports){
+},{"../exception":18}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2686,7 +2783,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":29}],22:[function(require,module,exports){
+},{"../utils":31}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2714,7 +2811,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2728,7 +2825,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2763,7 +2860,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":29}],25:[function(require,module,exports){
+},{"../utils":31}],27:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2812,7 +2909,7 @@ exports['default'] = logger;
 module.exports = exports['default'];
 
 
-},{"./utils":29}],26:[function(require,module,exports){
+},{"./utils":31}],28:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -2836,7 +2933,7 @@ module.exports = exports['default'];
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3130,7 +3227,7 @@ function executeDecorators(fn, prog, container, depths, data, blockParams) {
 }
 
 
-},{"./base":13,"./exception":16,"./utils":29}],28:[function(require,module,exports){
+},{"./base":15,"./exception":18,"./utils":31}],30:[function(require,module,exports){
 // Build out our basic SafeString type
 'use strict';
 
@@ -3147,7 +3244,7 @@ exports['default'] = SafeString;
 module.exports = exports['default'];
 
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3273,12 +3370,12 @@ function appendContextPath(contextPath, id) {
 }
 
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":12}],31:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":14}],33:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.1
  * http://jquery.com/
@@ -13111,7 +13208,7 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
