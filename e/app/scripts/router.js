@@ -14,6 +14,13 @@ var HeaderView = require('./views/header');
 var IndexView = require('./views/index');
 var SinglePostView = require('./views/singlepost');
 
+//TEMPLATES
+var fourOhFourTempl = require('../templates/fourOhFour.hbs');
+//==============================================================================
+//                            ROUTER
+//==============================================================================
+
+//ROUTER SETUP
 var Router = Backbone.Router.extend({
   routes: {
     "": "index",
@@ -35,6 +42,8 @@ var Router = Backbone.Router.extend({
     }.bind(this));
   },
   login: function(){
+    //not implemented, would do user auth and setup a session
+    //so other pages could check if user is loggedin
     console.log('should be login form');
   },
   singlePost: function(id){
@@ -45,14 +54,19 @@ var Router = Backbone.Router.extend({
     }.bind(this));
   },
   newPost: function(){
+    //form to write a new post
     console.log('new post triggered');
   },
   search: function(query){
+    //search results view
     console.log('searching for ', query);
   },
-  fourOhFour: function(){
-    console.log('nothing found at this address... Sorry!');
+  fourOhFour: function( path ){
+    //if we don't match a route then show a 404 page as that url
+    //doesn't exist on our domain
+    $('#app').html( fourOhFourTempl({path: path}) );
   }
 });
 
+//EXPORT ROUTER TO index.js
 module.exports = new Router();
