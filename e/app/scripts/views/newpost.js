@@ -5,7 +5,7 @@ var template = require('../../templates/newpost.hbs');
 
 var NewPostView = Backbone.View.extend({
   tagName: 'form',
-  id: 'new-post-form',
+  className: 'post-form',
   template: template,
   events: {
     "submit": "submit"
