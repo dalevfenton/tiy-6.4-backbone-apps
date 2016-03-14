@@ -14,6 +14,8 @@ var HeaderView = require('./views/header');
 var IndexView = require('./views/index');
 var SinglePostView = require('./views/singlepost');
 var SearchView = require('./views/search');
+var NewPostView = require('./views/newpost');
+
 //TEMPLATES - used only on static pages that don't need content
 //            or events offered by Views
 var fourOhFourTempl = require('../templates/fourOhFour.hbs');
@@ -57,7 +59,8 @@ var Router = Backbone.Router.extend({
   },
   newPost: function(){
     //form to write a new post
-    console.log('new post triggered');
+    var newpost = new NewPostView({ collection: this.posts });
+    $('#app').html( newpost.el );
   },
   search: function(query){
     //search results view
