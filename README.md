@@ -12,8 +12,8 @@ This group of mini-projects was completed over a single weekend using Backbone.j
 Router, Models, and Views populated by handlebars.js templates.
 
 The projects can be seen here:
-Challenge 1: http://dalevfenton.github.io/tiy-6.4-backbone-apps/a/dist/
-Challenge 2: http://dalevfenton.github.io/tiy-6.4-backbone-apps/b/dist/
-Challenge 3: http://dalevfenton.github.io/tiy-6.4-backbone-apps/c/dist/
-Challenge 4: http://dalevfenton.github.io/tiy-6.4-backbone-apps/d/dist/
-Challenge 5: http://dalevfenton.github.io/tiy-6.4-backbone-apps/e/dist/
+Challenge 1: http://dalevfenton.github.io/tiy-6.4-backbone-apps/a/dist/  
+Challenge 2: http://dalevfenton.github.io/tiy-6.4-backbone-apps/b/dist/  
+Challenge 3: http://dalevfenton.github.io/tiy-6.4-backbone-apps/c/dist/  
+Challenge 4: http://dalevfenton.github.io/tiy-6.4-backbone-apps/d/dist/  
+Challenge 5: http://dalevfenton.github.io/tiy-6.4-backbone-apps/e/dist/  
